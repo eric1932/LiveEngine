@@ -32,7 +32,7 @@
             else
             {
                 TrackingImageVisualizer visualizer = null;
-                NRDebugger.Log("Create new TrackingImageVisualizer!");
+                NRDebugger.Info("Create new TrackingImageVisualizer!");
                 visualizer = (TrackingImageVisualizer) Instantiate(
                     TrackingImageVisualizerPrefab,
                     new Vector3(0f, 0f, 0f),
@@ -67,7 +67,7 @@
                 m_Visualizers.TryGetValue(image.GetDataBaseIndex(), out visualizer);
                 if (image.GetTrackingState() == TrackingState.Tracking && visualizer == null)
                 {
-                    NRDebugger.Log("Create new TrackingImageVisualizer!");
+                    NRDebugger.Info("Create new TrackingImageVisualizer!");
                     // Create an anchor to ensure that NRSDK keeps tracking this augmented image.
                     visualizer = (TrackingImageVisualizer)Instantiate(TrackingImageVisualizerPrefab, image.GetCenterPose().position, image.GetCenterPose().rotation);
                     visualizer.Image = image;

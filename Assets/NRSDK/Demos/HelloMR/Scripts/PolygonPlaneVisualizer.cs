@@ -1,42 +1,55 @@
-﻿namespace NRKernal.NRExamples
+﻿/****************************************************************************
+* Copyright 2019 Nreal Techonology Limited. All rights reserved.
+*                                                                                                                                                          
+* This file is part of NRSDK.                                                                                                          
+*                                                                                                                                                           
+* https://www.nreal.ai/        
+* 
+*****************************************************************************/
+
+namespace NRKernal.NRExamples
 {
     using NRKernal;
     using System.Collections.Generic;
     using UnityEngine;
 
+    /// <summary> A polygon plane visualizer. </summary>
     public class PolygonPlaneVisualizer : NRTrackableBehaviour
     {
+        /// <summary> The material. </summary>
         public Material Material;
+        /// <summary> The renderer. </summary>
         private MeshRenderer m_Renderer;
+        /// <summary> Specifies the filter. </summary>
         private MeshFilter m_Filter;
+        /// <summary> The collider. </summary>
         private MeshCollider m_Collider;
+        /// <summary> List of positions. </summary>
         List<Vector3> m_PosList = new List<Vector3>();
+        /// <summary> The plane mesh. </summary>
         Mesh m_PlaneMesh = null;
 
 #if UNITY_EDITOR
+        /// <summary> The vectors data editor. </summary>
+        [SerializeField]
+        private Vector3[] VectorsDataEditor = new Vector3[4];
+        /// <summary> Gets boundary polygon. </summary>
+        /// <param name="tran">        The tran.</param>
+        /// <param name="polygonList"> List of polygons.</param>
         public void GetBoundaryPolygon(Transform tran, List<Vector3> polygonList)
         {
             polygonList.Clear();
 
-            float[] point_data = new float[8];
-            point_data[0] = 1;
-            point_data[1] = 1;
-            point_data[2] = 2;
-            point_data[3] = -2;
-            point_data[4] = -3;
-            point_data[5] = -3;
-            point_data[6] = -4;
-            point_data[7] = 4;
             Pose centerPos = new Pose(tran.position, tran.rotation);
             var unityWorldTPlane = Matrix4x4.TRS(tran.position, tran.rotation, Vector3.one);
-            for (int i = point_data.Length - 2; i >= 0; i -= 2)
+            for (int i = 0; i < VectorsDataEditor.Length; i++)
             {
-                Vector3 localpos = new Vector3(point_data[i], 0, point_data[i + 1]);
-                polygonList.Add(unityWorldTPlane.MultiplyPoint3x4(localpos));
+                polygonList.Add(unityWorldTPlane.MultiplyPoint3x4(VectorsDataEditor[i]));
             }
         }
 #endif
 
+        /// <summary> Updates this object. </summary>
         private void Update()
         {
 #if UNITY_EDITOR
@@ -55,9 +68,12 @@
 #endif
         }
 
+        /// <summary> Draw from center. </summary>
+        /// <param name="centerPose"> The center pose.</param>
+        /// <param name="vectors">    The vectors.</param>
         private void DrawFromCenter(Pose centerPose, List<Vector3> vectors)
         {
-            if (vectors == null || vectors.Count == 0)
+            if (vectors == null || vectors.Count < 3)
             {
                 return;
             }
@@ -82,9 +98,12 @@
             {
                 m_Renderer = gameObject.GetComponent<MeshRenderer>();
                 m_Renderer.material = Material;
+                var planeInVector_1 = vertices3D[0] - vertices3D[1];
+                var planeInVector_2 = vertices3D[1] - vertices3D[2];
+                m_Renderer.material.SetVector("_PlaneIn", planeInVector_1);
+                m_Renderer.material.SetVector("_PlaneNormal", Vector3.Cross(planeInVector_1, planeInVector_2));
             }
 
-            m_Renderer.material.SetVector("_PlaneNormal", centerPose.up);
             if (m_Filter == null)
             {
                 m_Filter = gameObject.GetComponent<MeshFilter>();
@@ -98,6 +117,9 @@
             m_Collider.sharedMesh = m_PlaneMesh;
         }
 
+        /// <summary> Generates the triangles. </summary>
+        /// <param name="posList"> List of positions.</param>
+        /// <returns> An array of int. </returns>
         private int[] GenerateTriangles(List<Vector3> posList)
         {
             List<int> indices = new List<int>();

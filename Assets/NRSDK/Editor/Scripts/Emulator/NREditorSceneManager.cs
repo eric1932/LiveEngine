@@ -9,20 +9,27 @@
 
 namespace NRKernal.NREditor
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using UnityEngine;
     using UnityEditor;
     using System;
 
+    /// <summary> Manager for nr editor scenes. </summary>
     public class NREditorSceneManager
     {
+        /// <summary> True if scene initialized. </summary>
         private bool m_SceneInitialized;
+        /// <summary> True to unload unused assets. </summary>
         private bool m_UnloadUnusedAssets;
+        /// <summary> True to apply appearance. </summary>
         private bool m_ApplyAppearance;
+        /// <summary> True to apply properties. </summary>
         private bool m_ApplyProperties;
+        /// <summary> The instance. </summary>
         private static NREditorSceneManager m_Instance;
+        /// <summary> The update callback. </summary>
         private EditorApplication.CallbackFunction m_UpdateCallback;
+        /// <summary> Gets the instance. </summary>
+        /// <value> The instance. </value>
         public static NREditorSceneManager Instance
         {
             get
@@ -42,29 +49,31 @@ namespace NRKernal.NREditor
             }
         }
 
+        /// <summary> Gets a value indicating whether the scene initialized. </summary>
+        /// <value> True if scene initialized, false if not. </value>
         public bool SceneInitialized { get { return m_SceneInitialized; } }
-        
 
-
+        /// <summary>
+        /// Constructor that prevents a default instance of this class from being created. </summary>
         private NREditorSceneManager()
         {
-
             //return;
             m_UpdateCallback = new EditorApplication.CallbackFunction(EditorUpdate);
             if (EditorApplication.update == null || !EditorApplication.update.Equals(m_UpdateCallback))
             {
                 EditorApplication.update = (EditorApplication.CallbackFunction)System.Delegate.Combine(EditorApplication.update, m_UpdateCallback);
             }
-           
+
             m_SceneInitialized = false;
         }
 
+        /// <summary> Initializes the scene. </summary>
         public void InitScene()
         {
             m_SceneInitialized = true;
-
         }
 
+        /// <summary> Editor update. </summary>
         public void EditorUpdate()
         {
             NRTrackableBehaviour[] trackables = GameObject.FindObjectsOfType<NRTrackableBehaviour>();
@@ -84,6 +93,9 @@ namespace NRKernal.NREditor
                 m_UnloadUnusedAssets = false;
             }
         }
+
+        /// <summary> Updates the trackable appearance described by trackables. </summary>
+        /// <param name="trackables"> The trackables.</param>
         private void UpdateTrackableAppearance(NRTrackableBehaviour[] trackables)
         {
             if (!Application.isPlaying)
@@ -100,6 +112,8 @@ namespace NRKernal.NREditor
             }
         }
 
+        /// <summary> Updates the trackable properties described by trackables. </summary>
+        /// <param name="trackables"> The trackables.</param>
         private void UpdateTrackableProperties(NRTrackableBehaviour[] trackables)
         {
             for (int i = 0; i < trackables.Length; i++)
@@ -113,6 +127,7 @@ namespace NRKernal.NREditor
             }
         }
 
+        /// <summary> Unload unused assets. </summary>
         public void UnloadUnusedAssets()
         {
             m_UnloadUnusedAssets = true;

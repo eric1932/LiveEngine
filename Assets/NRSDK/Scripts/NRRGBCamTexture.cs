@@ -12,177 +12,65 @@ namespace NRKernal
     using System;
     using UnityEngine;
 
-    public class RGBCameraTextureBase
+    /// <summary> Create a rgb camera texture. </summary>
+    public class NRRGBCamTexture : CameraModelView
     {
-        public int Height
-        {
-            get
-            {
-                return NRRgbCamera.Resolution.height;
-            }
-        }
-
-        public int Width
-        {
-            get
-            {
-                return NRRgbCamera.Resolution.width;
-            }
-        }
-
-        private bool m_IsPlaying = false;
-        public bool IsPlaying
-        {
-            get
-            {
-                return m_IsPlaying;
-            }
-        }
-
-        public bool DidUpdateThisFrame
-        {
-            get
-            {
-                return NRRgbCamera.HasFrame();
-            }
-        }
-
-        public int FrameCount = 0;
-        private bool m_IsInitilized = false;
-
-        private void Initilize()
-        {
-            if (m_IsInitilized)
-            {
-                return;
-            }
-
-            OnCreated();
-            NRRgbCamera.Regist(this);
-            m_IsInitilized = true;
-        }
-
-        /// <summary>
-        /// On texture created.
-        /// </summary>
-        protected virtual void OnCreated() { }
-
-        public void Play()
-        {
-            if (m_IsPlaying)
-            {
-                return;
-            }
-            this.Initilize();
-            NRKernalUpdater.Instance.OnUpdate += UpdateTexture;
-            NRRgbCamera.Play();
-            m_IsPlaying = true;
-        }
-
-        public void Pause()
-        {
-            if (!m_IsPlaying)
-            {
-                return;
-            }
-            NRKernalUpdater.Instance.OnUpdate -= UpdateTexture;
-            m_IsPlaying = false;
-        }
-
-        private void UpdateTexture()
-        {
-            if (!DidUpdateThisFrame || !IsPlaying)
-            {
-                return;
-            }
-
-            RGBRawDataFrame rgbRawDataFrame = NRRgbCamera.GetRGBFrame();
-            if (rgbRawDataFrame.data == null)
-            {
-                Debug.LogError("Get Rgb camera data faild...");
-                return;
-            }
-
-            OnLoadRawTextureData(rgbRawDataFrame);
-        }
-
-        /// <summary>
-        /// Load raw texture data.
-        /// </summary>
-        /// <param name="rgbRawDataFrame"></param>
-        protected virtual void OnLoadRawTextureData(RGBRawDataFrame rgbRawDataFrame) { }
-
-        public void Stop()
-        {
-            if (!m_IsInitilized)
-            {
-                return;
-            }
-
-            NRRgbCamera.UnRegist(this);
-            NRRgbCamera.Stop();
-
-            this.Pause();
-            this.OnStopped();
-
-            FrameCount = 0;
-            m_IsPlaying = false;
-            m_IsInitilized = false;
-        }
-
-        /// <summary>
-        /// On texture stopped.
-        /// </summary>
-        protected virtual void OnStopped() { }
-    }
-
-    /// <summary>
-    /// Create a rgb camera texture.
-    /// </summary>
-    public class NRRGBCamTexture : RGBCameraTextureBase
-    {
-        public Action<RGBTextureFrame> OnUpdate;
-        public RGBTextureFrame CurrentFrame;
+        /// <summary> The on update. </summary>
+        public Action<CameraTextureFrame> OnUpdate;
+        /// <summary> The current frame. </summary>
+        public CameraTextureFrame CurrentFrame;
+        /// <summary> The texture. </summary>
         private Texture2D m_Texture;
 
-        public Texture2D GetTexture()
+        /// <summary> Default constructor. </summary>
+        public NRRGBCamTexture() : base(CameraImageFormat.RGB_888)
         {
-            if (m_Texture == null)
-            {
-                m_Texture = CreateTex();
-            }
-            return m_Texture;
+            this.m_Texture = CreateTexture();
+            this.CurrentFrame.texture = this.m_Texture;
         }
 
-        private Texture2D CreateTex()
+        /// <summary> Creates the texture. </summary>
+        /// <returns> The new texture. </returns>
+        private Texture2D CreateTexture()
         {
             return new Texture2D(Width, Height, TextureFormat.RGB24, false);
         }
 
-        protected override void OnCreated()
+        /// <summary> Gets the texture. </summary>
+        /// <returns> The texture. </returns>
+        public Texture2D GetTexture()
         {
             if (m_Texture == null)
             {
-                m_Texture = CreateTex();
+                this.m_Texture = CreateTexture();
+                this.CurrentFrame.texture = this.m_Texture;
             }
+            return m_Texture;
         }
 
-        protected override void OnLoadRawTextureData(RGBRawDataFrame rgbRawDataFrame)
+        /// <summary> Load raw texture data. </summary>
+        /// <param name="rgbRawDataFrame"> .</param>
+        protected override void OnRawDataUpdate(FrameRawData rgbRawDataFrame)
         {
+            if (m_Texture == null)
+            {
+                this.m_Texture = CreateTexture();
+            }
             m_Texture.LoadRawTextureData(rgbRawDataFrame.data);
             m_Texture.Apply();
 
             CurrentFrame.timeStamp = rgbRawDataFrame.timeStamp;
             CurrentFrame.texture = m_Texture;
-            FrameCount++;
 
             OnUpdate?.Invoke(CurrentFrame);
         }
 
+        /// <summary> On texture stopped. </summary>
         protected override void OnStopped()
         {
             GameObject.Destroy(m_Texture);
-            m_Texture = null;
+            this.m_Texture = null;
+            this.CurrentFrame.texture = null;
         }
     }
 }

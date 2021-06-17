@@ -12,44 +12,38 @@ namespace NRKernal
     using UnityEngine;
     using UnityEngine.Serialization;
 
-    /// <summary>
-    /// A configuration used to track the world.
-    /// </summary>
+    /// <summary> A configuration used to track the world. </summary>
     [CreateAssetMenu(fileName = "NRKernalSessionConfig", menuName = "NRSDK/SessionConfig", order = 1)]
     public class NRSessionConfig : ScriptableObject
     {
-        // Chooses whether optimized rendering will be used. It can't be changed in runtime.
-        [Tooltip("Chooses whether Optimized Rendering will be used. It can't be changed in runtime")]
-        [FormerlySerializedAs("Optimized Rendering")]
-        public bool OptimizedRendering = true;
-
-        // Chooses which plane finding mode will be used.
+        /// <summary> Chooses which plane finding mode will be used. </summary>
         [Tooltip("Chooses which plane finding mode will be used.")]
         [FormerlySerializedAs("EnablePlaneFinding")]
         public TrackablePlaneFindingMode PlaneFindingMode = TrackablePlaneFindingMode.DISABLE;
 
-        // Chooses which marker finding mode will be used.
+        /// <summary> Chooses which marker finding mode will be used. </summary>
         [Tooltip("Chooses which marker finding mode will be used.")]
         [FormerlySerializedAs("EnableImageTracking")]
         public TrackableImageFindingMode ImageTrackingMode = TrackableImageFindingMode.DISABLE;
 
-        // A scriptable object specifying the NRSDK TrackingImageDatabase configuration.
+        /// <summary>
+        /// A scriptable object specifying the NRSDK TrackingImageDatabase configuration. </summary>
         [Tooltip("A scriptable object specifying the NRSDK TrackingImageDatabase configuration.")]
         public NRTrackingImageDatabase TrackingImageDatabase;
 
-        // A prefab specifying the NRSDK TrackingImageDatabase configuration.
+        /// <summary> A prefab specifying the NRSDK TrackingImageDatabase configuration. </summary>
         [Tooltip("Chooses whether notification will be used.")]
         public bool EnableNotification;
 
-        // A prefab specifying the NRSDK TrackingImageDatabase configuration.
+        /// <summary> A prefab specifying the NRSDK TrackingImageDatabase configuration. </summary>
         [Tooltip("An error prompt will pop up when the device fails to connect.")]
         public NRGlassesInitErrorTip ErrorTipsPrefab;
 
 
-        /// <summary>
-        /// ValueType check if two NRSessionConfig objects are equal.
-        /// </summary>
-        /// <returns>True if the two NRSessionConfig objects are value-type equal, otherwise false.</returns>
+        /// <summary> ValueType check if two NRSessionConfig objects are equal. </summary>
+        /// <param name="other"> .</param>
+        /// <returns>
+        /// True if the two NRSessionConfig objects are value-type equal, otherwise false. </returns>
         public override bool Equals(object other)
         {
             NRSessionConfig otherConfig = other as NRSessionConfig;
@@ -58,8 +52,7 @@ namespace NRKernal
                 return false;
             }
 
-            if (OptimizedRendering != otherConfig.OptimizedRendering ||
-                PlaneFindingMode != otherConfig.PlaneFindingMode ||
+            if (PlaneFindingMode != otherConfig.PlaneFindingMode ||
                 ImageTrackingMode != otherConfig.ImageTrackingMode ||
                 TrackingImageDatabase != otherConfig.TrackingImageDatabase)
             {
@@ -69,21 +62,17 @@ namespace NRKernal
             return true;
         }
 
-        /// <summary>
-        /// Return a hash code for this object.
-        /// </summary>
+        /// <summary> Return a hash code for this object. </summary>
+        /// <returns> A hash code for this object. </returns>
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
 
-        /// <summary>
-        /// ValueType copy from another SessionConfig object into this one.
-        /// </summary>
-        /// <param name="other"></param>
+        /// <summary> ValueType copy from another SessionConfig object into this one. </summary>
+        /// <param name="other"> .</param>
         public void CopyFrom(NRSessionConfig other)
         {
-            OptimizedRendering = other.OptimizedRendering;
             PlaneFindingMode = other.PlaneFindingMode;
             ImageTrackingMode = other.ImageTrackingMode;
             TrackingImageDatabase = other.TrackingImageDatabase;

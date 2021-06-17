@@ -7,29 +7,33 @@
 * 
 *****************************************************************************/
 
-using UnityEngine;
-
 namespace NRKernal.Record
 {
-    using System;
-    using NRKernal;
+    using UnityEngine;
 
+    /// <summary> A RGB camera frame provider. </summary>
     public class RGBCameraFrameProvider : AbstractFrameProvider
     {
+        /// <summary> The RGB tex. </summary>
         private NRRGBCamTexture m_RGBTex;
 
+        /// <summary> Default constructor. </summary>
         public RGBCameraFrameProvider()
         {
             m_RGBTex = new NRRGBCamTexture();
             m_RGBTex.OnUpdate += UpdateFrame;
         }
 
-        private void UpdateFrame(RGBTextureFrame frame)
+        /// <summary> Updates the frame described by frame. </summary>
+        /// <param name="frame"> The frame.</param>
+        private void UpdateFrame(CameraTextureFrame frame)
         {
             OnUpdate?.Invoke(frame);
             m_IsFrameReady = true;
         }
 
+        /// <summary> Gets frame information. </summary>
+        /// <returns> The frame information. </returns>
         public override Resolution GetFrameInfo()
         {
             Resolution resolution = new Resolution();
@@ -38,16 +42,19 @@ namespace NRKernal.Record
             return resolution;
         }
 
+        /// <summary> Plays this object. </summary>
         public override void Play()
         {
             m_RGBTex.Play();
         }
 
+        /// <summary> Stops this object. </summary>
         public override void Stop()
         {
             m_RGBTex.Pause();
         }
 
+        /// <summary> Releases this object. </summary>
         public override void Release()
         {
             m_RGBTex.Stop();
